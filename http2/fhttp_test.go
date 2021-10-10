@@ -6,9 +6,6 @@ import (
 	"crypto/x509"
 	"errors"
 	"fmt"
-	"github.com/useflyent/fhttp/cookiejar"
-	"github.com/useflyent/fhttp/httptest"
-	"golang.org/x/net/publicsuffix"
 	"log"
 	ghttp "net/http"
 	"net/url"
@@ -16,8 +13,12 @@ import (
 	"strings"
 	"testing"
 
-	http "github.com/useflyent/fhttp"
-	"github.com/useflyent/fhttp/http2"
+	"github.com/Danny-Dasilva/fhttp/cookiejar"
+	"github.com/Danny-Dasilva/fhttp/httptest"
+	"golang.org/x/net/publicsuffix"
+
+	http "github.com/Danny-Dasilva/fhttp"
+	"github.com/Danny-Dasilva/fhttp/http2"
 )
 
 // Tests if connection settings are written correctly

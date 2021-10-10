@@ -11,8 +11,8 @@ import (
 	"log"
 	"testing"
 
-	http "github.com/useflyent/fhttp"
-	"github.com/useflyent/fhttp/http2"
+	http "github.com/Danny-Dasilva/fhttp"
+	"github.com/Danny-Dasilva/fhttp/http2"
 )
 
 func TestSettingsAckSwallowWriter(t *testing.T) {

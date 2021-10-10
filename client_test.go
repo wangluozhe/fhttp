@@ -25,9 +25,9 @@ import (
 	"testing"
 	"time"
 
-	. "github.com/useflyent/fhttp"
-	"github.com/useflyent/fhttp/cookiejar"
-	"github.com/useflyent/fhttp/httptest"
+	. "github.com/Danny-Dasilva/fhttp"
+	"github.com/Danny-Dasilva/fhttp/cookiejar"
+	"github.com/Danny-Dasilva/fhttp/httptest"
 )
 
 var robotsTxtHandler = HandlerFunc(func(w ResponseWriter, r *Request) {

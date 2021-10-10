@@ -22,7 +22,7 @@ import (
 	"sync"
 	"testing"
 
-	"github.com/useflyent/fhttp/internal/cfg"
+	"github.com/Danny-Dasilva/fhttp/internal/cfg"
 )
 
 // Builder reports the name of the builder running this test
