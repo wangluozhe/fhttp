@@ -72,9 +72,6 @@ SETTINGS_MAX_HEADER_LIST_SIZE = 10485760
 
 The ENABLE_PUSH implementation was merged from [this Pull Request](https://go-review.googlesource.com/c/net/+/181497/).
 
-## gzip, deflate, and br encoding
-
-`gzip`, `deflate`, and `br` encoding are all supported by the package.
 
 ## Pseudo header order
 

@@ -1129,12 +1129,11 @@ func (cc *ClientConn) roundTrip(req *http.Request) (res *http.Response, gotErrAf
 	body := req.Body
 	contentLen := actualContentLength(req)
 	hasBody := contentLen != 0
-	requestedGzip := cc.requestGzip(req)
 
 	// we send: HEADERS{1}, CONTINUATION{0,} + DATA{0,} (DATA is
 	// sent by writeRequestBody below, along with any Trailers,
 	// again in form HEADERS{1}, CONTINUATION{0,})
-	hdrs, err := cc.encodeHeaders(req, requestedGzip, trailers, contentLen)
+ 	hdrs, err := cc.encodeHeaders(req, trailers, contentLen)
 	if err != nil {
 		cc.mu.Unlock()
 		return nil, false, err
@@ -1143,7 +1142,6 @@ func (cc *ClientConn) roundTrip(req *http.Request) (res *http.Response, gotErrAf
 	cs := cc.newStream()
 	cs.req = req
 	cs.trace = httptrace.ContextClientTrace(req.Context())
-	cs.requestedGzip = requestedGzip
 	bodyWriter := cc.t.getBodyWriterState(cs, body)
 	cs.on100 = bodyWriter.on100
 
@@ -1547,7 +1545,7 @@ func (cs *clientStream) awaitFlowControl(maxBytes int) (taken int32, err error) 
 }
 
 // requires cc.mu be held.
-func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trailers string, contentLength int64) ([]byte, error) {
+func (cc *ClientConn) encodeHeaders(req *http.Request, trailers string, contentLength int64) ([]byte, error) {
 	cc.hbuf.Reset()
 
 	host := req.Host
@@ -1650,7 +1648,7 @@ func (cc *ClientConn) encodeHeaders(req *http.Request, addGzipHeader bool, trail
 		}
 
 		// Does not include accept-encoding header if its defined in req.Header
-		if _, ok := hdrs["accept-encoding"]; !ok && addGzipHeader {
+		if _, ok := hdrs["accept-encoding"]; !ok {
 			hdrs["accept-encoding"] = []string{"gzip, deflate, br"}
 		}
 
@@ -2199,7 +2197,6 @@ func (rl *clientConnReadLoop) handleResponse(cs *clientStream, f *MetaHeadersFra
 	res.Body = transportResponseBody{cs}
 	go cs.awaitRequestCancel(cs.req)
 
-	res.Body = http.DecompressBody(res)
 	return res, nil
 }
 
