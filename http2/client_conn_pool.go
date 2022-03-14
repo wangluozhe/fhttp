@@ -7,8 +7,9 @@
 package http2
 
 import (
-	"crypto/tls"
 	"sync"
+
+	tls "gitlab.com/yawning/utls.git"
 
 	http "github.com/Danny-Dasilva/fhttp"
 )

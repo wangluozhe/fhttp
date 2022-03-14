@@ -2,7 +2,6 @@ package http2_test
 
 import (
 	"bytes"
-	"crypto/tls"
 	"crypto/x509"
 	"errors"
 	"fmt"
@@ -15,6 +14,7 @@ import (
 
 	"github.com/Danny-Dasilva/fhttp/cookiejar"
 	"github.com/Danny-Dasilva/fhttp/httptest"
+	tls "gitlab.com/yawning/utls.git"
 	"golang.org/x/net/publicsuffix"
 
 	http "github.com/Danny-Dasilva/fhttp"

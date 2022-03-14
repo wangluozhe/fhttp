@@ -7,7 +7,6 @@
 package httptest
 
 import (
-	"crypto/tls"
 	"crypto/x509"
 	"flag"
 	"fmt"
@@ -17,6 +16,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	tls "gitlab.com/yawning/utls.git"
 
 	http "github.com/Danny-Dasilva/fhttp"
 	"github.com/Danny-Dasilva/fhttp/internal"

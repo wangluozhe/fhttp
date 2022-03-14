@@ -8,7 +8,6 @@ package http
 
 import (
 	"bytes"
-	"crypto/tls"
 	"errors"
 	"fmt"
 	"io"
@@ -16,6 +15,8 @@ import (
 	"net"
 	"strings"
 	"testing"
+
+	tls "gitlab.com/yawning/utls.git"
 
 	"github.com/Danny-Dasilva/fhttp/internal"
 )

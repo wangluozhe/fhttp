@@ -12,7 +12,6 @@ import (
 	"compress/gzip"
 	"compress/zlib"
 	"context"
-	"crypto/tls"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -35,6 +34,8 @@ import (
 	"syscall"
 	"testing"
 	"time"
+
+	tls "gitlab.com/yawning/utls.git"
 
 	. "github.com/Danny-Dasilva/fhttp"
 	"github.com/Danny-Dasilva/fhttp/httptest"

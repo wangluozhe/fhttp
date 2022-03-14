@@ -18,7 +18,6 @@ package http2 // import "github.com/Danny-Dasilva/fhttp/http2"
 
 import (
 	"bufio"
-	"crypto/tls"
 	"fmt"
 	"io"
 	"os"
@@ -26,6 +25,8 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+
+	tls "gitlab.com/yawning/utls.git"
 
 	http "github.com/Danny-Dasilva/fhttp"
 

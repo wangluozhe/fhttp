@@ -11,7 +11,6 @@ package http
 
 import (
 	"context"
-	"crypto/tls"
 	"encoding/base64"
 	"errors"
 	"fmt"
@@ -23,6 +22,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	tls "gitlab.com/yawning/utls.git"
 )
 
 // A Client is an HTTP client. Its zero value (DefaultClient) is a

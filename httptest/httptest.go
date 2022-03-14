@@ -8,9 +8,10 @@ package httptest
 import (
 	"bufio"
 	"bytes"
-	"crypto/tls"
 	"io"
 	"strings"
+
+	tls "gitlab.com/yawning/utls.git"
 
 	http "github.com/Danny-Dasilva/fhttp"
 )

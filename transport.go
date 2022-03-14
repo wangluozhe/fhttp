@@ -11,9 +11,9 @@ package http
 
 import (
 	"bufio"
+
 	"container/list"
 	"context"
-	"crypto/tls"
 	"errors"
 	"fmt"
 	"io"
@@ -27,6 +27,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	tls "gitlab.com/yawning/utls.git"
 
 	"github.com/Danny-Dasilva/fhttp/httptrace"
 
@@ -2450,7 +2452,6 @@ type requestAndChan struct {
 	cancelKey cancelKey
 	ch        chan responseAndError // unbuffered; always send in select on callerGone
 
-
 	// Optional blocking chan for Expect: 100-continue (for send).
 	// If the request has an "Expect: 100-continue" header and
 	// the server responds 100 Continue, readLoop send a value
@@ -2519,6 +2520,10 @@ func (pc *persistConn) roundTrip(req *transportRequest) (resp *Response, err err
 		headerFn(req.extraHeaders())
 	}
 
+	// Ask for a compressed version if the caller didn't set their
+	// own value for Accept-Encoding. We only attempt to
+	// uncompress the gzip stream if we were the layer that
+	// requested it.
 
 	var continueCh chan struct{}
 	if req.ProtoAtLeast(1, 1) && req.Body != nil && req.expectsContinue() {

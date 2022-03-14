@@ -11,7 +11,6 @@ import (
 	"compress/gzip"
 	"crypto/rand"
 	"crypto/sha1"
-	"crypto/tls"
 	"fmt"
 	"hash"
 	"io"
@@ -27,6 +26,8 @@ import (
 	"sync/atomic"
 	"testing"
 	"time"
+
+	tls "gitlab.com/yawning/utls.git"
 
 	. "github.com/Danny-Dasilva/fhttp"
 	"github.com/Danny-Dasilva/fhttp/httptest"

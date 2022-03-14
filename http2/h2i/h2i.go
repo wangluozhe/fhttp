@@ -22,7 +22,6 @@ package main
 import (
 	"bufio"
 	"bytes"
-	"crypto/tls"
 	"errors"
 	"flag"
 	"fmt"
@@ -34,6 +33,8 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+
+	tls "gitlab.com/yawning/utls.git"
 
 	"github.com/Danny-Dasilva/fhttp/http2"
 	"github.com/Danny-Dasilva/fhttp/http2/hpack"

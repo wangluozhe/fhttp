@@ -11,7 +11,6 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
-	"crypto/tls"
 	"errors"
 	"fmt"
 	"io"
@@ -28,6 +27,8 @@ import (
 	"sync/atomic"
 	"time"
 
+	tls "gitlab.com/yawning/utls.git"
+
 	http "github.com/Danny-Dasilva/fhttp"
 	"github.com/Danny-Dasilva/fhttp/httptrace"
 
@@ -39,7 +40,7 @@ import (
 const (
 	// transportDefaultConnFlow is how many connection-level flow control
 	// tokens we give the server at start-up, past the default 64k.
-	transportDefaultConnFlow = 1 << 30
+	transportDefaultConnFlow = 15663105
 
 	// transportDefaultStreamFlow is how many stream-level flow
 	// control tokens we announce to the peer, and how many bytes
@@ -312,15 +313,14 @@ type ClientConn struct {
 // clientStream is the state for a single HTTP/2 stream. One of these
 // is created for each Transport.RoundTrip call.
 type clientStream struct {
-	cc            *ClientConn
-	req           *http.Request
-	trace         *httptrace.ClientTrace // or nil
-	ID            uint32
-	resc          chan resAndError
-	bufPipe       pipe // buffered pipe with the flow-controlled response payload
-	startedWrite  bool // started request body write; guarded by cc.mu
-	requestedGzip bool
-	on100         func() // optional code to run if get a 100 continue response
+	cc           *ClientConn
+	req          *http.Request
+	trace        *httptrace.ClientTrace // or nil
+	ID           uint32
+	resc         chan resAndError
+	bufPipe      pipe   // buffered pipe with the flow-controlled response payload
+	startedWrite bool   // started request body write; guarded by cc.mu
+	on100        func() // optional code to run if get a 100 continue response
 
 	flow        flow  // guarded by cc.mu
 	inflow      flow  // guarded by cc.mu
@@ -1133,7 +1133,7 @@ func (cc *ClientConn) roundTrip(req *http.Request) (res *http.Response, gotErrAf
 	// we send: HEADERS{1}, CONTINUATION{0,} + DATA{0,} (DATA is
 	// sent by writeRequestBody below, along with any Trailers,
 	// again in form HEADERS{1}, CONTINUATION{0,})
- 	hdrs, err := cc.encodeHeaders(req, trailers, contentLen)
+	hdrs, err := cc.encodeHeaders(req, trailers, contentLen)
 	if err != nil {
 		cc.mu.Unlock()
 		return nil, false, err

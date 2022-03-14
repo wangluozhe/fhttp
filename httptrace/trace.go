@@ -8,11 +8,12 @@ package httptrace
 
 import (
 	"context"
-	"crypto/tls"
 	"net"
 	"net/textproto"
 	"reflect"
 	"time"
+
+	tls "gitlab.com/yawning/utls.git"
 
 	"github.com/Danny-Dasilva/fhttp/internal/nettrace"
 )

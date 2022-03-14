@@ -5,12 +5,13 @@
 package httptest
 
 import (
-	"crypto/tls"
 	"io"
 	"net/url"
 	"reflect"
 	"strings"
 	"testing"
+
+	tls "gitlab.com/yawning/utls.git"
 
 	http "github.com/Danny-Dasilva/fhttp"
 )
