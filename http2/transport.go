@@ -838,7 +838,7 @@ func (fr *Framer) AutoWriteSettings(t *Transport) (inflowValue uint32, nextStrea
 		initialSettings = append(initialSettings, Setting{ID: SettingMaxHeaderListSize, Val: 262144})
 		fr.WriteSettings(initialSettings...)
 		fr.WriteWindowUpdate(0, windowUpdateSize)
-		return initialWindowSize + windowUpdateSize, 0, nil
+		return initialWindowSize + windowUpdateSize, 1, nil
 
 	default:
 		return 0, 0, errors.New(t.Navigator + " is not supported")
