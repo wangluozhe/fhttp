@@ -13,7 +13,7 @@ import (
 	"reflect"
 	"time"
 
-	tls "gitlab.com/yawning/utls.git"
+	tls "github.com/Danny-Dasilva/utls"
 
 	"github.com/Danny-Dasilva/fhttp/internal/nettrace"
 )

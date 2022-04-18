@@ -18,7 +18,7 @@ import (
 	"strconv"
 	"strings"
 
-	tls "gitlab.com/yawning/utls.git"
+	tls "github.com/Danny-Dasilva/utls"
 
 	http "github.com/Danny-Dasilva/fhttp"
 )

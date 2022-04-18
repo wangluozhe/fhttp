@@ -25,7 +25,7 @@ import (
 	"sync"
 	"time"
 
-	tls "gitlab.com/yawning/utls.git"
+	tls "github.com/Danny-Dasilva/utls"
 
 	"cloud.google.com/go/storage"
 	"github.com/Danny-Dasilva/fhttp/http2"

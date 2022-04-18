@@ -2,6 +2,7 @@
 // Use of this source code is governed by a BSD-style
 // license that can be found in the LICENSE file.
 
+//go:build aix || darwin || dragonfly || freebsd || linux || netbsd || openbsd || solaris || windows
 // +build aix darwin dragonfly freebsd linux netbsd openbsd solaris windows
 
 /*
@@ -34,7 +35,7 @@ import (
 	"strconv"
 	"strings"
 
-	tls "gitlab.com/yawning/utls.git"
+	tls "github.com/Danny-Dasilva/utls"
 
 	"github.com/Danny-Dasilva/fhttp/http2"
 	"github.com/Danny-Dasilva/fhttp/http2/hpack"

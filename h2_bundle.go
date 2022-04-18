@@ -25,7 +25,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/rand"
-	tls "gitlab.com/yawning/utls.git"
+	tls "github.com/Danny-Dasilva/utls"
 	"encoding/binary"
 	"errors"
 	"fmt"

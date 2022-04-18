@@ -17,7 +17,7 @@ import (
 	"sync"
 	"time"
 
-	tls "gitlab.com/yawning/utls.git"
+	tls "github.com/Danny-Dasilva/utls"
 
 	http "github.com/Danny-Dasilva/fhttp"
 	"github.com/Danny-Dasilva/fhttp/internal"
