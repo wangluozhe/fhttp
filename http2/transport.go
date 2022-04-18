@@ -148,6 +148,8 @@ type Transport struct {
 	Settings          []Setting
 	InitialWindowSize uint32 // if nil, will use global initialWindowSize
 	HeaderTableSize   uint32 // if nil, will use global initialHeaderTableSize
+
+	Navigator string
 }
 
 func (t *Transport) maxHeaderListSize() uint32 {
@@ -735,44 +737,56 @@ func (t *Transport) newClientConn(c net.Conn, addr string, singleUse bool) (*Cli
 		cc.tlsState = &state
 	}
 
-	initialSettings := []Setting{}
-
-	var pushEnabled uint32
-	if t.PushHandler != nil {
-		pushEnabled = 1
-	}
-	initialSettings = append(initialSettings, Setting{ID: SettingEnablePush, Val: pushEnabled})
-
-	setMaxHeader := false
-	if t.Settings != nil {
-		for _, setting := range t.Settings {
-			if setting.ID == SettingMaxHeaderListSize {
-				setMaxHeader = true
-			}
-			if setting.ID == SettingHeaderTableSize || setting.ID == SettingInitialWindowSize {
-				return nil, errSettingsIncludeIllegalSettings
-			}
-			initialSettings = append(initialSettings, setting)
-		}
-	}
-	if t.InitialWindowSize != 0 {
-		initialSettings = append(initialSettings, Setting{ID: SettingInitialWindowSize, Val: t.InitialWindowSize})
-	} else {
-		initialSettings = append(initialSettings, Setting{ID: SettingInitialWindowSize, Val: transportDefaultStreamFlow})
-	}
-	if t.HeaderTableSize != 0 {
-		initialSettings = append(initialSettings, Setting{ID: SettingHeaderTableSize, Val: t.HeaderTableSize})
-	} else {
-		initialSettings = append(initialSettings, Setting{ID: SettingHeaderTableSize, Val: initialHeaderTableSize})
-	}
-	if max := t.maxHeaderListSize(); max != 0 && !setMaxHeader {
-		initialSettings = append(initialSettings, Setting{ID: SettingMaxHeaderListSize, Val: max})
-	}
-
 	cc.bw.Write(clientPreface)
-	cc.fr.WriteSettings(initialSettings...)
-	cc.fr.WriteWindowUpdate(0, transportDefaultConnFlow)
-	cc.inflow.add(transportDefaultConnFlow + initialWindowSize)
+
+	if t.Navigator != "" {
+		inflowValue, nextStreamId, err := cc.fr.AutoWriteSettings(t)
+		if err != nil {
+			return nil, err
+		}
+		cc.inflow.add(int32(inflowValue))
+		cc.nextStreamID = nextStreamId
+
+	} else {
+		var initialSettings []Setting
+
+		var pushEnabled uint32
+		if t.PushHandler != nil {
+			pushEnabled = 1
+		}
+		initialSettings = append(initialSettings, Setting{ID: SettingEnablePush, Val: pushEnabled})
+
+		setMaxHeader := false
+		if t.Settings != nil {
+			for _, setting := range t.Settings {
+				if setting.ID == SettingMaxHeaderListSize {
+					setMaxHeader = true
+				}
+				if setting.ID == SettingHeaderTableSize || setting.ID == SettingInitialWindowSize {
+					return nil, errSettingsIncludeIllegalSettings
+				}
+				initialSettings = append(initialSettings, setting)
+			}
+		}
+		if t.InitialWindowSize != 0 {
+			initialSettings = append(initialSettings, Setting{ID: SettingInitialWindowSize, Val: t.InitialWindowSize})
+		} else {
+			initialSettings = append(initialSettings, Setting{ID: SettingInitialWindowSize, Val: transportDefaultStreamFlow})
+		}
+		if t.HeaderTableSize != 0 {
+			initialSettings = append(initialSettings, Setting{ID: SettingHeaderTableSize, Val: t.HeaderTableSize})
+		} else {
+			initialSettings = append(initialSettings, Setting{ID: SettingHeaderTableSize, Val: initialHeaderTableSize})
+		}
+		if max := t.maxHeaderListSize(); max != 0 && !setMaxHeader {
+			initialSettings = append(initialSettings, Setting{ID: SettingMaxHeaderListSize, Val: max})
+		}
+
+		cc.fr.WriteSettings(initialSettings...)
+		cc.fr.WriteWindowUpdate(0, transportDefaultConnFlow)
+		cc.inflow.add(transportDefaultConnFlow + initialWindowSize)
+	}
+
 	cc.bw.Flush()
 	if cc.werr != nil {
 		cc.Close()
@@ -781,6 +795,54 @@ func (t *Transport) newClientConn(c net.Conn, addr string, singleUse bool) (*Cli
 
 	go cc.readLoop()
 	return cc, nil
+}
+
+func (fr *Framer) AutoWriteSettings(t *Transport) (inflowValue uint32, nextStreamId uint32, err error) {
+	var initialSettings []Setting
+	var initialWindowSize uint32
+	var windowUpdateSize uint32
+
+	switch t.Navigator {
+	case "firefox":
+		initialWindowSize = 131072
+		windowUpdateSize = 12517377
+		if t.HeaderTableSize != 0 {
+			initialSettings = append(initialSettings, Setting{ID: SettingHeaderTableSize, Val: t.HeaderTableSize})
+		} else {
+			initialSettings = append(initialSettings, Setting{ID: SettingHeaderTableSize, Val: 4096}) //65536
+		}
+		initialSettings = append(initialSettings, Setting{ID: SettingInitialWindowSize, Val: initialWindowSize})
+		initialSettings = append(initialSettings, Setting{ID: SettingMaxFrameSize, Val: 16384})
+
+		fr.WriteSettings(initialSettings...)
+		fr.WriteWindowUpdate(0, windowUpdateSize)
+		fr.WritePriority(3, PriorityParam{Weight: 200})
+		fr.WritePriority(5, PriorityParam{Weight: 100})
+		fr.WritePriority(7, PriorityParam{Weight: 0})
+		fr.WritePriority(9, PriorityParam{Weight: 0, StreamDep: 7})
+		fr.WritePriority(11, PriorityParam{Weight: 0, StreamDep: 3})
+		fr.WritePriority(13, PriorityParam{Weight: 240})
+
+		return initialWindowSize + windowUpdateSize, 15, nil
+
+	case "chrome":
+		initialWindowSize = 6291456
+		windowUpdateSize = 15663105
+		if t.HeaderTableSize != 0 {
+			initialSettings = append(initialSettings, Setting{ID: SettingHeaderTableSize, Val: t.HeaderTableSize})
+		} else {
+			initialSettings = append(initialSettings, Setting{ID: SettingHeaderTableSize, Val: 65536})
+		}
+		initialSettings = append(initialSettings, Setting{ID: SettingMaxConcurrentStreams, Val: 1000})
+		initialSettings = append(initialSettings, Setting{ID: SettingInitialWindowSize, Val: initialWindowSize})
+		initialSettings = append(initialSettings, Setting{ID: SettingMaxHeaderListSize, Val: 262144})
+		fr.WriteSettings(initialSettings...)
+		fr.WriteWindowUpdate(0, windowUpdateSize)
+		return initialWindowSize + windowUpdateSize, 0, nil
+
+	default:
+		return 0, 0, errors.New(t.Navigator + " is not supported")
+	}
 }
 
 func (cc *ClientConn) healthCheck() {
