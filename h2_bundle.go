@@ -5811,6 +5811,10 @@ func (sc *http2serverConn) newWriterAndRequest(st *http2stream, f *http2MetaHead
 		path:      f.PseudoValue("path"),
 	}
 
+	for _, field := range f.Fields {
+		rp.rawHeader = append(rp.rawHeader, field)
+	}
+
 	isConnect := rp.method == "CONNECT"
 	if isConnect {
 		if rp.path != "" || rp.scheme != "" || rp.authority == "" {
@@ -5865,10 +5869,12 @@ func (sc *http2serverConn) newWriterAndRequest(st *http2stream, f *http2MetaHead
 	return rw, req, nil
 }
 
+
 type http2requestParam struct {
 	method                  string
 	scheme, authority, path string
 	header                  Header
+	rawHeader				[]hpack.HeaderField
 }
 
 func (sc *http2serverConn) newWriterAndRequestNoBody(st *http2stream, rp http2requestParam) (*http2responseWriter, *Request, error) {
@@ -5931,6 +5937,7 @@ func (sc *http2serverConn) newWriterAndRequestNoBody(st *http2stream, rp http2re
 		URL:        url_,
 		RemoteAddr: sc.remoteAddrStr,
 		Header:     rp.header,
+		RawHeader:  rp.rawHeader,
 		RequestURI: requestURI,
 		Proto:      "HTTP/2.0",
 		ProtoMajor: 2,

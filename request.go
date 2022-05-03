@@ -13,6 +13,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"github.com/Danny-Dasilva/fhttp/http2/hpack"
 	"io"
 	"mime"
 	"mime/multipart"
@@ -164,7 +165,8 @@ type Request struct {
 	// and Connection are automatically written when needed and
 	// Values in Header may be ignored. See the documentation
 	// for the Request.Write method.
-	Header Header
+	Header    Header
+	RawHeader []hpack.HeaderField
 
 	// Body is the request's body.
 	//
