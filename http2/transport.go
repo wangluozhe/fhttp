@@ -58,7 +58,7 @@ const (
 type HTTP2Settings struct {
 	Settings       []Setting
 	ConnectionFlow int
-	HeaderPriority PriorityParam
+	HeaderPriority *PriorityParam
 	PriorityFrames []PriorityFrame
 }
 
@@ -1476,11 +1476,22 @@ func (cc *ClientConn) writeHeaders(streamID uint32, endStream bool, maxFrameSize
 		hdrs = hdrs[len(chunk):]
 		endHeaders := len(hdrs) == 0
 		if first {
+			defaultHeaderPriorityParam := PriorityParam{
+				Exclusive: true,
+				Weight:    255,
+				StreamDep: 0,
+			}
+
+			if cc.t.HTTP2Settings.HeaderPriority != nil {
+				defaultHeaderPriorityParam = *cc.t.HTTP2Settings.HeaderPriority
+			}
+
 			cc.fr.WriteHeaders(HeadersFrameParam{
 				StreamID:      streamID,
 				BlockFragment: chunk,
 				EndStream:     endStream,
 				EndHeaders:    endHeaders,
+				Priority:      defaultHeaderPriorityParam,
 			})
 			first = false
 		} else {
