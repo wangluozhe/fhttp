@@ -18,9 +18,9 @@ import (
 	"strconv"
 	"strings"
 
-	tls "github.com/Danny-Dasilva/utls"
+	tls "github.com/refraction-networking/utls"
 
-	http "github.com/Danny-Dasilva/fhttp"
+	http "github.com/wangluozhe/fhttp"
 )
 
 // Request returns the HTTP request as represented in the current

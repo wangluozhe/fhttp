@@ -10,7 +10,7 @@ import (
 	"net"
 	"testing"
 
-	http "github.com/Danny-Dasilva/fhttp"
+	http "github.com/wangluozhe/fhttp"
 )
 
 type newServerFunc func(http.Handler) *Server

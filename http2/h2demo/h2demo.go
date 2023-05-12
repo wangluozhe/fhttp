@@ -25,10 +25,10 @@ import (
 	"sync"
 	"time"
 
-	tls "github.com/Danny-Dasilva/utls"
+	tls "github.com/refraction-networking/utls"
 
 	"cloud.google.com/go/storage"
-	"github.com/Danny-Dasilva/fhttp/http2"
+	"github.com/wangluozhe/fhttp/http2"
 	"go4.org/syncutil/singleflight"
 	"golang.org/x/build/autocertcache"
 	"golang.org/x/crypto/acme/autocert"

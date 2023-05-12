@@ -27,11 +27,10 @@ import (
 	"testing"
 	"time"
 
-	tls "github.com/Danny-Dasilva/utls"
+	tls "github.com/refraction-networking/utls"
 
-	. "github.com/Danny-Dasilva/fhttp"
-	"github.com/Danny-Dasilva/fhttp/httptest"
-	"github.com/Danny-Dasilva/fhttp/httputil"
+	"github.com/wangluozhe/fhttp/httptest"
+	"github.com/wangluozhe/fhttp/httputil"
 )
 
 type clientServerTest struct {
