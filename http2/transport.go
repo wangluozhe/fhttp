@@ -1476,23 +1476,37 @@ func (cc *ClientConn) writeHeaders(streamID uint32, endStream bool, maxFrameSize
 		hdrs = hdrs[len(chunk):]
 		endHeaders := len(hdrs) == 0
 		if first {
-			defaultHeaderPriorityParam := PriorityParam{
-				Exclusive: true,
-				Weight:    255,
-				StreamDep: 0,
+			if cc.t.HTTP2Settings != nil {
+				if cc.t.HTTP2Settings.HeaderPriority != nil {
+					defaultHeaderPriorityParam := PriorityParam{
+						Exclusive: true,
+						Weight:    255,
+						StreamDep: 0,
+					}
+					defaultHeaderPriorityParam = *cc.t.HTTP2Settings.HeaderPriority
+					cc.fr.WriteHeaders(HeadersFrameParam{
+						StreamID:      streamID,
+						BlockFragment: chunk,
+						EndStream:     endStream,
+						EndHeaders:    endHeaders,
+						Priority:      defaultHeaderPriorityParam,
+					})
+				} else {
+					cc.fr.WriteHeaders(HeadersFrameParam{
+						StreamID:      streamID,
+						BlockFragment: chunk,
+						EndStream:     endStream,
+						EndHeaders:    endHeaders,
+					})
+				}
+			} else {
+				cc.fr.WriteHeaders(HeadersFrameParam{
+					StreamID:      streamID,
+					BlockFragment: chunk,
+					EndStream:     endStream,
+					EndHeaders:    endHeaders,
+				})
 			}
-
-			if cc.t.HTTP2Settings.HeaderPriority != nil {
-				defaultHeaderPriorityParam = *cc.t.HTTP2Settings.HeaderPriority
-			}
-
-			cc.fr.WriteHeaders(HeadersFrameParam{
-				StreamID:      streamID,
-				BlockFragment: chunk,
-				EndStream:     endStream,
-				EndHeaders:    endHeaders,
-				Priority:      defaultHeaderPriorityParam,
-			})
 			first = false
 		} else {
 			cc.fr.WriteContinuation(streamID, endHeaders, chunk)
