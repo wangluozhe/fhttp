@@ -1368,7 +1368,7 @@ func (cc *ClientConn) roundTrip(req *http.Request) (res *http.Response, gotErrAf
 			return handleReadLoopResponse(re)
 		case <-respHeaderTimer:
 			if !hasBody || bodyWritten {
-				cc.writeStreamReset(cs.ID, ErrCodeCancel, nil)
+				cc.writeStreamReset(cs.ID, ErrCodeCancel, errors.New("response read header timeout"))
 			} else {
 				bodyWriter.cancel()
 				cs.abortRequestBodyWrite(errStopReqBodyWriteAndCancel)
@@ -1378,7 +1378,7 @@ func (cc *ClientConn) roundTrip(req *http.Request) (res *http.Response, gotErrAf
 			return nil, cs.getStartedWrite(), errTimeout
 		case <-ctx.Done():
 			if !hasBody || bodyWritten {
-				cc.writeStreamReset(cs.ID, ErrCodeCancel, nil)
+				cc.writeStreamReset(cs.ID, ErrCodeCancel, errors.New("context done"))
 			} else {
 				bodyWriter.cancel()
 				cs.abortRequestBodyWrite(errStopReqBodyWriteAndCancel)
@@ -1388,7 +1388,7 @@ func (cc *ClientConn) roundTrip(req *http.Request) (res *http.Response, gotErrAf
 			return nil, cs.getStartedWrite(), ctx.Err()
 		case <-req.Cancel:
 			if !hasBody || bodyWritten {
-				cc.writeStreamReset(cs.ID, ErrCodeCancel, nil)
+				cc.writeStreamReset(cs.ID, ErrCodeCancel, errors.New("request cancel"))
 			} else {
 				bodyWriter.cancel()
 				cs.abortRequestBodyWrite(errStopReqBodyWriteAndCancel)
@@ -2880,7 +2880,7 @@ func (cc *ClientConn) writeStreamReset(streamID uint32, code ErrCode, err error)
 	// RST_STREAM there's no equivalent to GOAWAY frame's debug
 	// data, and the error codes are all pretty vague ("cancel").
 	cc.wmu.Lock()
-	fmt.Printf("reset err %v StreamID: %v\n", code, streamID)
+	fmt.Printf("reset err: %v code: %v StreamID: %v\n", err, code, streamID)
 	cc.fr.WriteRSTStream(streamID, code)
 	cc.bw.Flush()
 	cc.wmu.Unlock()
