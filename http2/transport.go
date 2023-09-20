@@ -411,7 +411,7 @@ func (cs *clientStream) cancelStream() {
 	cc.mu.Unlock()
 
 	if didReset {
-		cc.writeStreamReset(cs.ID, ErrCodeCancel, nil)
+		cc.writeStreamReset(cs.ID, ErrCodeCancel, errors.New("cancel stream"))
 		cc.forgetStreamID(cs.ID)
 	}
 }
@@ -1616,7 +1616,7 @@ func (cs *clientStream) writeRequestBody(body io.Reader, bodyCloser io.Closer) (
 			case err == errStopReqBodyWrite:
 				return err
 			case err == errStopReqBodyWriteAndCancel:
-				cc.writeStreamReset(cs.ID, ErrCodeCancel, nil)
+				cc.writeStreamReset(cs.ID, ErrCodeCancel, errors.New("stop request body writer and cancel"))
 				return err
 			case err != nil:
 				return err
