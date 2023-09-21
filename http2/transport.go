@@ -274,6 +274,22 @@ func (t *Transport) initConnPool() {
 	if t.ConnPool != nil {
 		t.connPoolOrDef = t.ConnPool
 	} else {
+		for _, v := range t.HTTP2Settings.Settings {
+			switch v.ID {
+			case SettingHeaderTableSize:
+			    t.HeaderTableSize = v.Val
+			//case SettingEnablePush:
+			//  t.HeaderTableSize = v.Val
+			// case SettingMaxConcurrentStreams:
+			//     t.StrictMaxConcurrentStreams = v.Val
+			case SettingInitialWindowSize:
+			    t.InitialWindowSize = v.Val
+			//case SettingMaxFrameSize:
+			//  t.HeaderTableSize = v.Val
+			case SettingMaxHeaderListSize:
+			    t.HeaderTableSize = v.Val
+			}
+		}
 		t.connPoolOrDef = &clientConnPool{t: t}
 	}
 }
